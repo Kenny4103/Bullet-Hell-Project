@@ -67,4 +67,29 @@ public class ProjectileMover : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        Debug.Log($"Projectile collided with: {other.gameObject.name}");
+
+        if (other.CompareTag("Enemy"))
+        {
+            Debug.Log("Enemy hit!");
+            EnemyHealth enemyHealth = other.GetComponent<EnemyHealth>();
+            if (enemyHealth != null)
+            {
+                Debug.Log("EnemyHealth component found. Applying damage.");
+                enemyHealth.TakeDamage(1); // Inflict damage
+            }
+            else
+            {
+                Debug.LogError("EnemyHealth component missing!");
+            }
+
+            Destroy(gameObject);
+        }
+    }
+
+
 }
+
