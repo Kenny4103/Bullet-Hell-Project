@@ -55,6 +55,6 @@ public class GameManager : MonoBehaviour
 
         // Hide the text and load the LevelSelect scene
         levelText.gameObject.SetActive(false);
-        SceneManager.LoadScene("LevelSelect");
+        SceneManager.LoadScene("LoseScene");
     }
 }
