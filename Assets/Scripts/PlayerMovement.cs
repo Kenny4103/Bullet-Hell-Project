@@ -17,8 +17,18 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        _movement.Set(InputManager.Movement.x, InputManager.Movement.y);
+        // Only allow movement if gameplay is active
+        if (GameManager.Instance != null && GameManager.Instance.isGameplayActive)
+        {
+            _movement.Set(InputManager.Movement.x, InputManager.Movement.y);
+        }
+        else
+        {
+            // Stop movement if gameplay is not active
+            _movement = Vector2.zero;
+        }
 
         _rb.velocity = _movement * _moveSpeed;
     }
 }
+
