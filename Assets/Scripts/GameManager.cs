@@ -85,14 +85,48 @@ public class GameManager : MonoBehaviour
         {
             currentLevel++;
             string nextSceneName = $"Level{currentLevel}";
-            Debug.Log($"Loading next scene: {nextSceneName}");
-            SceneManager.LoadScene(nextSceneName);
+
+            // Debugging log to ensure the scene name is correct
+            Debug.Log($"Attempting to load next scene: {nextSceneName}");
+
+            if (SceneExists(nextSceneName))
+            {
+                SceneManager.LoadScene(nextSceneName);
+            }
+            else
+            {
+                Debug.LogError($"Scene '{nextSceneName}' does not exist in Build Settings!");
+            }
         }
-        else
+        else if (currentLevel == totalLevels)
         {
             Debug.Log("All levels completed! Transitioning to Victory scene.");
-            SceneManager.LoadScene("Victory");
+
+            if (SceneExists("WinScene"))
+            {
+                SceneManager.LoadScene("WinScene");
+            }
+            else
+            {
+                Debug.LogError("WinScene does not exist in Build Settings!");
+            }
         }
+    }
+
+    // Helper function to verify if a scene exists in Build Settings
+    private bool SceneExists(string sceneName)
+    {
+        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+        {
+            string path = SceneUtility.GetScenePathByBuildIndex(i);
+            string name = System.IO.Path.GetFileNameWithoutExtension(path);
+
+            if (name == sceneName)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void ScheduleGameOverText(float delay)
