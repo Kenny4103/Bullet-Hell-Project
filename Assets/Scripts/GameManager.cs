@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     private int currentLevel = 1; // Track the current level
     private int totalLevels = 3; // Total number of levels (adjust as necessary)
     public float levelTransitionDelay = 2f; // Delay before transitioning to the next level
+    public float winSceneDelay = 1f; // Delay before showing the WinScene
 
     private void Awake()
     {
@@ -78,6 +79,11 @@ public class GameManager : MonoBehaviour
     {
         levelText.text = $"Level Complete!";
         levelText.gameObject.SetActive(true);
+
+        // Wait for a short delay before transitioning to the WinScene
+        yield return new WaitForSeconds(winSceneDelay);
+
+        SceneManager.LoadScene("WinScene");
 
         yield return new WaitForSeconds(levelTransitionDelay);
 
