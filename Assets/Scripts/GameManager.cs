@@ -1,16 +1,23 @@
-using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine;
 using System.Collections;
-
+using UnityEngine.UI;
+using System;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
     public Text levelText; // Assign this in the Inspector
+    public Text controlsText; // Assign this in the Inspector for the controls
     public float gameOverTextDuration = 3f; // Duration to display "Game Over" text
-    public bool isGameplayActive = false;
+    public float controlsTextDuration = 5f; // Duration to display the controls text
+    public event Action OnGameplayStart; // Event for when gameplay starts
+    public bool isGameplayActive { get; private set; } = false;
+
+    private int currentLevel = 1; // Track the current level
+    private int totalLevels = 3; // Total number of levels (adjust as necessary)
+    public float levelTransitionDelay = 2f; // Delay before transitioning to the next level
 
     private void Awake()
     {
@@ -23,12 +30,71 @@ public class GameManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
     public void StartGameplay()
     {
-        isGameplayActive = true; // Enable gameplay
+        isGameplayActive = true;
+
+        // Trigger the event
+        OnGameplayStart?.Invoke();
+
+        Debug.Log($"Gameplay started on Level {currentLevel}!");
+
+        // Display the level start text
+        DisplayStartText();
     }
 
-    // Schedule the Game Over text to display after a delay
+    private void DisplayStartText()
+    {
+        levelText.text = $"Start!";
+        levelText.gameObject.SetActive(true);
+
+        // Schedule the controls text to appear after the start text disappears
+        StartCoroutine(DisplayControlsText());
+    }
+
+    private IEnumerator DisplayControlsText()
+    {
+        yield return new WaitForSeconds(2f);
+
+        levelText.gameObject.SetActive(false);
+
+        if (controlsText != null)
+        {
+            controlsText.text = "Move with WASD, Shoot with K";
+            controlsText.gameObject.SetActive(true);
+
+            yield return new WaitForSeconds(controlsTextDuration);
+            controlsText.gameObject.SetActive(false);
+        }
+    }
+
+    public void OnAllEnemiesDefeated()
+    {
+        StartCoroutine(LevelTransition());
+    }
+
+    private IEnumerator LevelTransition()
+    {
+        levelText.text = $"Level Complete!";
+        levelText.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(levelTransitionDelay);
+
+        if (currentLevel < totalLevels)
+        {
+            currentLevel++;
+            string nextSceneName = $"Level{currentLevel}";
+            Debug.Log($"Loading next scene: {nextSceneName}");
+            SceneManager.LoadScene(nextSceneName);
+        }
+        else
+        {
+            Debug.Log("All levels completed! Transitioning to Victory scene.");
+            SceneManager.LoadScene("Victory");
+        }
+    }
+
     public void ScheduleGameOverText(float delay)
     {
         StartCoroutine(DisplayGameOverTextAfterDelay(delay));
@@ -45,7 +111,6 @@ public class GameManager : MonoBehaviour
         levelText.text = "Game Over";
         levelText.gameObject.SetActive(true);
 
-        // Start the coroutine to return to the LevelSelect scene after the text duration
         StartCoroutine(ReturnToLevelSelectAfterDelay());
     }
 
@@ -53,7 +118,6 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(gameOverTextDuration);
 
-        // Hide the text and load the LevelSelect scene
         levelText.gameObject.SetActive(false);
         SceneManager.LoadScene("LevelSelect");
     }

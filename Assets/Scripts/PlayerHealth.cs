@@ -1,17 +1,41 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerHealth : MonoBehaviour
 {
     public int health = 3; // Starting health of the player
+    public Text healthText; // Assign this in the Inspector to display the health
+
+    private void Start()
+    {
+        // Initialize the health text at the start of the game
+        UpdateHealthText();
+    }
 
     // Method to reduce health when the player takes damage
     public void TakeDamage(int damage)
     {
         health -= damage;
+
+        // Clamp health to ensure it doesn't go below 0
+        health = Mathf.Max(health, 0);
+
+        // Update the health text whenever health changes
+        UpdateHealthText();
+
         if (health <= 0)
         {
             // Trigger Game Over logic
             GameOver();
+        }
+    }
+
+    // Update the health text on the UI
+    private void UpdateHealthText()
+    {
+        if (healthText != null)
+        {
+            healthText.text = $"Health: {Mathf.Max(health, 0)}"; // Clamp health to 0 for display
         }
     }
 
